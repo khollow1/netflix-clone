@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Navbar from "../../../components/Navbar";
 import { getMovie } from "../../../lib/tmdb";
+import { getWatchLink } from "../../../lib/watch-links";
 
 type Trailer = {
   type: string;
@@ -61,6 +62,7 @@ export default async function MoviePage(props: PageProps<"/movie/[id]">) {
   );
   const safeTrailerKey =
     trailer && /^[A-Za-z0-9_-]{6,20}$/.test(trailer.key) ? trailer.key : null;
+  const watchLink = getWatchLink(movie.id);
 
   return (
     <div className="min-h-screen text-white">
@@ -100,12 +102,28 @@ export default async function MoviePage(props: PageProps<"/movie/[id]">) {
               {movie.overview || "Aucun résumé disponible pour ce film."}
             </p>
             <div className="mt-6">
-              <Link
-                href="/"
-                className="inline-flex rounded-xl bg-gradient-to-r from-[#ff4d4f] to-[#ff9a44] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
-              >
-                Retour vers la page principale
-              </Link>
+              <div className="flex flex-wrap gap-3">
+                {watchLink ? (
+                  <a
+                    href={watchLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex rounded-xl bg-gradient-to-r from-[#ff4d4f] to-[#ff9a44] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                  >
+                    Ou regarder
+                  </a>
+                ) : (
+                  <span className="inline-flex rounded-xl border border-dashed border-white/25 bg-black/20 px-5 py-2.5 text-sm text-slate-300">
+                    Lien non configure (ID film: {movie.id})
+                  </span>
+                )}
+                <Link
+                  href="/"
+                  className="inline-flex rounded-xl border border-white/20 bg-black/30 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-black/45"
+                >
+                  Retour vers la page principale
+                </Link>
+              </div>
             </div>
           </div>
         </section>
