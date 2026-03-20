@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900" role="img" aria-label="Poster indisponible">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#141b2e" />
+      <stop offset="100%" stop-color="#090d18" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff4d4f" />
+      <stop offset="100%" stop-color="#ff9a44" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="900" fill="url(#bg)" />
+  <g opacity="0.2">
+    <circle cx="90" cy="120" r="160" fill="#ffffff" />
+    <circle cx="520" cy="780" r="210" fill="#ffffff" />
+  </g>
+  <rect x="120" y="250" width="360" height="300" rx="20" fill="#0f1424" stroke="#ffffff" stroke-opacity="0.25" />
+  <path d="M180 510L250 410L310 470L380 360L420 510Z" fill="url(#accent)" opacity="0.85" />
+  <circle cx="380" cy="340" r="24" fill="#ff9a44" />
+  <text x="300" y="620" text-anchor="middle" fill="#f8f9ff" font-family="Arial, sans-serif" font-size="34" font-weight="700">
+    CINEVERSE
+  </text>
+  <text x="300" y="665" text-anchor="middle" fill="#c4cae2" font-family="Arial, sans-serif" font-size="22">
+    Poster indisponible
+  </text>
+</svg>
