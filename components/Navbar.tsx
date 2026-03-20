@@ -25,7 +25,7 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden text-sm text-slate-300 md:block">
-          {isHome ? "Découvre les films du moment" : "Détails et bande-annonce"}
+          {isHome ? "Decouvre films, series et anime" : "Details et bande-annonce"}
         </div>
 
         <form action="/" className="flex w-full max-w-md items-center gap-2 sm:w-auto">
@@ -33,9 +33,9 @@ export default function Navbar() {
             type="search"
             name="q"
             defaultValue={defaultQuery}
-            placeholder="Rechercher un film..."
+            placeholder="Rechercher un film ou une serie..."
             className="h-10 w-full rounded-xl border border-white/15 bg-slate-950/80 px-3 text-sm text-white placeholder:text-slate-400"
-            aria-label="Rechercher un film"
+            aria-label="Rechercher un film ou une serie"
           />
           <button
             type="submit"

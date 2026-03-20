@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Navbar from "../../../components/Navbar";
-import { getMovie } from "../../../lib/tmdb";
-import { getMovieWatchLink } from "../../../lib/watch-links";
+import { getTVShow } from "../../../lib/tmdb";
+import { getTvWatchLink } from "../../../lib/watch-links";
 
 type Trailer = {
   type: string;
@@ -16,13 +16,13 @@ type Genre = {
   name: string;
 };
 
-type Movie = {
+type TVShow = {
   id: number;
-  title: string;
+  name: string;
   overview?: string;
-  release_date?: string;
+  first_air_date?: string;
   vote_average?: number;
-  runtime?: number;
+  number_of_seasons?: number;
   backdrop_path?: string | null;
   poster_path?: string | null;
   genres?: Genre[];
@@ -39,30 +39,20 @@ function getTmdbImage(path?: string | null, size: "w500" | "original" = "origina
   return `https://image.tmdb.org/t/p/${size}${path}`;
 }
 
-function formatRuntime(runtime?: number) {
-  if (!runtime) {
-    return "-";
-  }
-
-  const hours = Math.floor(runtime / 60);
-  const minutes = runtime % 60;
-  return `${hours}h ${minutes.toString().padStart(2, "0")}`;
-}
-
-export default async function MoviePage(props: PageProps<"/movie/[id]">) {
+export default async function TVPage(props: PageProps<"/tv/[id]">) {
   const params = await props.params;
-  const movie = (await getMovie(params.id)) as Movie | null;
+  const show = (await getTVShow(params.id)) as TVShow | null;
 
-  if (!movie?.id) {
+  if (!show?.id) {
     notFound();
   }
 
-  const trailer = movie.videos?.results?.find(
+  const trailer = show.videos?.results?.find(
     (vid) => vid.type === "Trailer" && vid.site === "YouTube"
   );
   const safeTrailerKey =
     trailer && /^[A-Za-z0-9_-]{6,20}$/.test(trailer.key) ? trailer.key : null;
-  const watchLink = getMovieWatchLink(movie.id);
+  const watchLink = getTvWatchLink(show.id);
 
   return (
     <div className="min-h-screen text-white">
@@ -72,34 +62,34 @@ export default async function MoviePage(props: PageProps<"/movie/[id]">) {
         <section className="relative overflow-hidden rounded-3xl border border-white/10">
           <div className="absolute inset-0">
             <Image
-              src={getTmdbImage(movie.backdrop_path, "original")}
-              alt={movie.title}
+              src={getTmdbImage(show.backdrop_path, "original")}
+              alt={show.name}
               fill
               priority
               className="object-cover"
             />
           </div>
           <div className="relative bg-gradient-to-r from-black/90 via-black/75 to-black/35 p-6 sm:p-10">
-            <p className="mb-3 text-xs uppercase tracking-[0.2em] text-slate-300">Fiche film</p>
-            <h1 className="display-font text-3xl font-bold sm:text-5xl">{movie.title}</h1>
+            <p className="mb-3 text-xs uppercase tracking-[0.2em] text-slate-300">Fiche serie</p>
+            <h1 className="display-font text-3xl font-bold sm:text-5xl">{show.name}</h1>
             <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-200">
               <span className="rounded-full border border-white/20 px-3 py-1">
-                ⭐ {movie.vote_average?.toFixed(1) ?? "-"}
+                ⭐ {show.vote_average?.toFixed(1) ?? "-"}
               </span>
               <span className="rounded-full border border-white/20 px-3 py-1">
-                {movie.release_date?.slice(0, 4) ?? "-"}
+                {show.first_air_date?.slice(0, 4) ?? "-"}
               </span>
               <span className="rounded-full border border-white/20 px-3 py-1">
-                {formatRuntime(movie.runtime)}
+                {show.number_of_seasons ?? "-"} saison(s)
               </span>
-              {(movie.genres ?? []).slice(0, 3).map((genre) => (
+              {(show.genres ?? []).slice(0, 3).map((genre) => (
                 <span key={genre.id} className="rounded-full border border-white/20 px-3 py-1">
                   {genre.name}
                 </span>
               ))}
             </div>
             <p className="mt-5 max-w-3xl text-sm text-slate-100 sm:text-base">
-              {movie.overview || "Aucun résumé disponible pour ce film."}
+              {show.overview || "Aucun resume disponible pour cette serie."}
             </p>
             <div className="mt-6">
               <div className="flex flex-wrap gap-3">
@@ -114,7 +104,7 @@ export default async function MoviePage(props: PageProps<"/movie/[id]">) {
                   </a>
                 ) : (
                   <span className="inline-flex rounded-xl border border-dashed border-white/25 bg-black/20 px-5 py-2.5 text-sm text-slate-300">
-                    Lien non configure (ID film: {movie.id})
+                    Lien non configure (ID serie: {show.id})
                   </span>
                 )}
                 <Link
@@ -135,7 +125,7 @@ export default async function MoviePage(props: PageProps<"/movie/[id]">) {
               <iframe
                 className="aspect-video w-full"
                 src={`https://www.youtube.com/embed/${safeTrailerKey}`}
-                title={`Bande-annonce de ${movie.title}`}
+                title={`Bande-annonce de ${show.name}`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen

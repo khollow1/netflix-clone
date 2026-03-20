@@ -1,16 +1,35 @@
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
-import { getByGenre, getTrending, searchMovies } from "../lib/tmdb";
+import {
+  getByGenre,
+  getTrending,
+  getTrendingAnime,
+  getTrendingTV,
+  getTVByGenre,
+  searchMoviesAndTV,
+} from "../lib/tmdb";
 
-type Movie = {
+type TMDBItem = {
   id: number;
   poster_path: string | null;
   backdrop_path: string | null;
-  title: string;
+  media_type?: "movie" | "tv" | "person";
+  title?: string;
+  name?: string;
   overview?: string;
   vote_average?: number;
   release_date?: string;
+  first_air_date?: string;
+};
+
+type CardItem = {
+  id: number;
+  poster_path: string | null;
+  title: string;
+  vote_average?: number;
+  release_date?: string;
+  href: string;
 };
 
 function getTmdbImage(path: string | null, size: "w500" | "original" = "w500") {
@@ -28,6 +47,34 @@ function formatYear(date?: string) {
   return new Date(date).getFullYear().toString();
 }
 
+function toCardItems(items: TMDBItem[] | undefined, routePrefix: "/movie" | "/tv"): CardItem[] {
+  return (items ?? []).map((item) => ({
+    id: item.id,
+    poster_path: item.poster_path,
+    title: item.title ?? item.name ?? "Titre indisponible",
+    vote_average: item.vote_average,
+    release_date: item.release_date ?? item.first_air_date,
+    href: `${routePrefix}/${item.id}`,
+  }));
+}
+
+function toSearchCardItems(items: TMDBItem[] | undefined): CardItem[] {
+  return (items ?? [])
+    .filter((item) => item.media_type === "movie" || item.media_type === "tv")
+    .map((item) => {
+      const routePrefix = item.media_type === "tv" ? "/tv" : "/movie";
+
+      return {
+        id: item.id,
+        poster_path: item.poster_path,
+        title: item.title ?? item.name ?? "Titre indisponible",
+        vote_average: item.vote_average,
+        release_date: item.release_date ?? item.first_air_date,
+        href: `${routePrefix}/${item.id}`,
+      };
+    });
+}
+
 export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
   const query = typeof searchParams.q === "string" ? searchParams.q.trim() : "";
@@ -35,15 +82,24 @@ export default async function Home(props: PageProps<"/">) {
     process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_API_KEY || process.env.TMDB_READ_ACCESS_TOKEN,
   );
 
-  const [trending, action, comedy, searchResults] = await Promise.all([
+  const [trendingMovies, trendingTV, anime, actionMovies, comedyMovies, dramaTV, searchResults] = await Promise.all([
     getTrending(),
+    getTrendingTV(),
+    getTrendingAnime(),
     getByGenre(28),
     getByGenre(35),
-    query ? searchMovies(query) : Promise.resolve({ results: [] }),
+    getTVByGenre(18),
+    query ? searchMoviesAndTV(query) : Promise.resolve({ results: [] }),
   ]);
 
-  const heroMovie: Movie | undefined = trending.results?.[0];
-  const searchedMovies: Movie[] = searchResults.results ?? [];
+  const heroMovie: TMDBItem | undefined = trendingMovies.results?.[0];
+  const searchedMovies = toSearchCardItems(searchResults.results);
+  const trendingMovieCards = toCardItems(trendingMovies.results, "/movie");
+  const trendingTVCards = toCardItems(trendingTV.results, "/tv");
+  const animeCards = toCardItems(anime.results, "/tv");
+  const actionMovieCards = toCardItems(actionMovies.results, "/movie");
+  const comedyMovieCards = toCardItems(comedyMovies.results, "/movie");
+  const dramaTVCards = toCardItems(dramaTV.results, "/tv");
 
   return (
     <div className="min-h-screen text-white">
@@ -97,29 +153,44 @@ export default async function Home(props: PageProps<"/">) {
         </section>
 
         {query ? (
-          <MovieRow
+          <ContentRow
             title={`Résultats pour "${query}"`}
-            subtitle={`${searchedMovies.length} film(s) trouvé(s)`}
+            subtitle={`${searchedMovies.length} resultat(s) trouve(s)`}
             movies={searchedMovies}
           />
         ) : null}
 
-        <MovieRow title="Tendances" subtitle="Les films dont tout le monde parle" movies={trending.results} />
-        <MovieRow title="Action" subtitle="Adrénaline pure" movies={action.results} />
-        <MovieRow title="Comédie" subtitle="Pour passer une bonne soirée" movies={comedy.results} />
+        <ContentRow
+          title="Films tendances"
+          subtitle="Les films dont tout le monde parle"
+          movies={trendingMovieCards}
+        />
+        <ContentRow
+          title="Series tendances"
+          subtitle="Les series les plus populaires du moment"
+          movies={trendingTVCards}
+        />
+        <ContentRow
+          title="Anime tendances"
+          subtitle="Selection anime (TV d'origine japonaise)"
+          movies={animeCards}
+        />
+        <ContentRow title="Action" subtitle="Adrenaline pure" movies={actionMovieCards} />
+        <ContentRow title="Comedie" subtitle="Pour passer une bonne soiree" movies={comedyMovieCards} />
+        <ContentRow title="Dramas TV" subtitle="Series dramatiques a suivre" movies={dramaTVCards} />
       </main>
     </div>
   );
 }
 
-function MovieRow({
+function ContentRow({
   title,
   subtitle,
   movies,
 }: {
   title: string;
   subtitle: string;
-  movies: Movie[];
+  movies: CardItem[];
 }) {
   if (!movies?.length) {
     return (
@@ -143,7 +214,7 @@ function MovieRow({
         {movies.map((movie) => (
           <Link
             key={movie.id}
-            href={`/movie/${movie.id}`}
+            href={movie.href}
             className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950/70"
           >
             <div className="relative aspect-[2/3]">
