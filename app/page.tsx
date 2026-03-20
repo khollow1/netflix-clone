@@ -31,6 +31,9 @@ function formatYear(date?: string) {
 export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
   const query = typeof searchParams.q === "string" ? searchParams.q.trim() : "";
+  const tmdbConfigured = Boolean(
+    process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_API_KEY || process.env.TMDB_READ_ACCESS_TOKEN,
+  );
 
   const [trending, action, comedy, searchResults] = await Promise.all([
     getTrending(),
@@ -47,6 +50,15 @@ export default async function Home(props: PageProps<"/">) {
       <Navbar />
 
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-12 pt-6 sm:px-6 lg:px-8">
+        {!tmdbConfigured ? (
+          <section className="rounded-2xl border border-amber-300/40 bg-amber-500/10 p-4 text-amber-100">
+            <p className="text-sm font-medium">
+              TMDB n&apos;est pas configure sur cet environnement. Ajoute la variable `TMDB_API_KEY` (ou
+              `TMDB_READ_ACCESS_TOKEN`) dans Vercel puis redeploie.
+            </p>
+          </section>
+        ) : null}
+
         <section className="relative overflow-hidden rounded-3xl border border-white/10">
           <div className="absolute inset-0">
             <Image

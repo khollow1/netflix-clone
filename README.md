@@ -1,5 +1,18 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Variables
+
+Create a `.env.local` file at the project root:
+
+```bash
+TMDB_API_KEY=your_tmdb_api_key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+Notes:
+- Use `TMDB_API_KEY` (server-side) instead of exposing the key publicly.
+- In production, set `NEXT_PUBLIC_SITE_URL` to your real HTTPS domain.
+
 ## Getting Started
 
 First, run the development server:

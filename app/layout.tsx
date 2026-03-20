@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Sora, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 const sora = Sora({
   variable: "--font-sora",
   subsets: ["latin"],
@@ -13,7 +15,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://cineverse.local"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "CineVerse",
     template: "%s | CineVerse",

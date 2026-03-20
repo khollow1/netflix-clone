@@ -59,6 +59,8 @@ export default async function MoviePage(props: PageProps<"/movie/[id]">) {
   const trailer = movie.videos?.results?.find(
     (vid) => vid.type === "Trailer" && vid.site === "YouTube"
   );
+  const safeTrailerKey =
+    trailer && /^[A-Za-z0-9_-]{6,20}$/.test(trailer.key) ? trailer.key : null;
 
   return (
     <div className="min-h-screen text-white">
@@ -108,13 +110,13 @@ export default async function MoviePage(props: PageProps<"/movie/[id]">) {
           </div>
         </section>
 
-        {trailer ? (
+        {safeTrailerKey ? (
           <section className="section-shell overflow-hidden rounded-3xl p-4 sm:p-6">
             <h2 className="display-font mb-4 text-2xl font-semibold">Bande-annonce</h2>
             <div className="overflow-hidden rounded-2xl border border-white/15">
               <iframe
                 className="aspect-video w-full"
-                src={`https://www.youtube.com/embed/${trailer.key}`}
+                src={`https://www.youtube.com/embed/${safeTrailerKey}`}
                 title={`Bande-annonce de ${movie.title}`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerPolicy="strict-origin-when-cross-origin"
