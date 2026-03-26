@@ -42,17 +42,18 @@ export default function RootLayout({
       lang="en"
       className={`${sora.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-
+      <head>
+    
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8933774191305964"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+      </head>
 
+      <body className="min-h-full flex flex-col">
         {children}
-
       </body>
     </html>
   );
